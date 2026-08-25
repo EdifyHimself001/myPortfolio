@@ -1,0 +1,82 @@
+---
+import { getEmbedUrl } from "@/lib/utils";
+
+interface Props {
+  videoUrl: string;
+  posterSrc?: string;
+  title: string;
+}
+
+const { videoUrl, posterSrc, title } = Astro.props;
+const embed = getEmbedUrl(videoUrl);
+const uid = `video-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+{
+  embed ? (
+    <div data-video-facade data-src={embed.src}>
+      <button
+        type="button"
+        class="group relative block aspect-video w-full overflow-hidden bg-black ring-1 ring-white/10"
+        aria-label={`Play video: ${title}`}
+      >
+        {posterSrc && (
+          <img
+            src={posterSrc}
+            alt=""
+            width="1600"
+            height="900"
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-cover opacity-80 transition-opacity group-hover:opacity-100"
+          />
+        )}
+        <span class="absolute inset-0 grid place-items-center">
+          <span class="grid h-20 w-20 place-items-center rounded-full bg-accent/90 transition-transform duration-300 group-hover:scale-110">
+            <svg
+              viewBox="0 0 24 24"
+              width="30"
+              height="30"
+              fill="#fff"
+              aria-hidden="true"
+            >
+              <path d="M8 5.14v13.72L19 12 8 5.14z" />
+            </svg>
+          </span>
+        </span>
+        <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-10 text-left text-xs font-semibold uppercase tracking-widest text-[rgb(255_255_255/0.9)]">
+          Play — loads {embed.provider === "youtube" ? "YouTube" : "Vimeo"}
+        </span>
+      </button>
+    </div>
+  ) : (
+    <video
+      controls
+      playsinline
+      preload="none"
+      poster={posterSrc}
+      class="aspect-video w-full bg-black ring-1 ring-white/10"
+    >
+      <source src={videoUrl} type="video/mp4" />
+      Your browser does not support embedded video.
+      <a href={videoUrl}>Watch the video directly</a>.
+    </video>
+  )
+}
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-video-facade]").forEach((el) => {
+    const button = el.querySelector("button");
+    if (!button) return;
+    button.addEventListener("click", () => {
+      const iframe = document.createElement("iframe");
+      iframe.src = el.dataset.src ?? "";
+      iframe.title = el.closest("[data-video-facade]")?.getAttribute("data-title") ?? "Video player";
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+      iframe.className = "aspect-video w-full bg-black ring-1 ring-white/10";
+      el.replaceChildren(iframe);
+    });
+  });
+</script>

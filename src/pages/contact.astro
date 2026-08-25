@@ -1,0 +1,91 @@
+---
+import { Mail, MapPin, Clock } from "lucide-react";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ContactForm from "@/components/islands/ContactForm";
+import { siteConfig } from "@/data/site";
+
+const socialEntries = Object.entries(siteConfig.social).filter(
+  ([, url]) => url !== ""
+);
+---
+
+<BaseLayout
+  title="Contact"
+  description={`Get in touch with ${siteConfig.name} — web development, photography, design and video projects.`}
+>
+  <div class="shell pb-24 pt-16 lg:pb-32 lg:pt-24">
+    <header class="max-w-3xl">
+      <p class="eyebrow">Contact</p>
+      <h1 class="display-hero mt-4" style="font-size: clamp(2.75rem, 8vw, 6rem);">
+        Let's make something
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-neutral-400">
+        Building a product, planning a shoot or refreshing a brand? Tell me
+        about it — I reply to every serious enquiry.
+      </p>
+    </header>
+
+    <div class="mt-16 grid gap-16 lg:grid-cols-12">
+      <aside class="space-y-10 lg:col-span-4">
+        <div>
+          <h2 class="eyebrow">Direct</h2>
+          <a
+            href={`mailto:${siteConfig.email}`}
+            class="link-underline mt-4 inline-flex items-center gap-2 text-lg font-semibold text-white"
+          >
+            <Mail size={17} className="text-accent" />
+            {siteConfig.email}
+          </a>
+        </div>
+
+        <div>
+          <h2 class="eyebrow">Based in</h2>
+          <p class="mt-4 inline-flex items-center gap-2 text-lg font-semibold text-white">
+            <MapPin size={17} className="text-accent" />
+            {siteConfig.location}
+          </p>
+          <p class="mt-2 flex items-center gap-2 text-sm text-neutral-500">
+            <Clock size={13} />
+            GMT — replies within 48 hours
+          </p>
+        </div>
+
+        {
+          socialEntries.length > 0 && (
+            <div>
+              <h2 class="eyebrow">Elsewhere</h2>
+              <ul class="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+                {socialEntries.map(([name, url]) => (
+                  <li>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="link-underline text-sm capitalize text-neutral-300 transition-colors hover:text-white"
+                    >
+                      {name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
+        }
+
+        <div class="border-t border-line pt-6">
+          <p class="text-sm leading-relaxed text-neutral-500">
+            Prefer documents?{" "}
+            <a href="/cv/" class="link-underline text-neutral-300">
+              View my CV online
+            </a>{" "}
+            or download the PDF.
+          </p>
+        </div>
+      </aside>
+
+      <div class="border border-line bg-panel p-6 sm:p-10 lg:col-span-8">
+        <ContactForm client:visible />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

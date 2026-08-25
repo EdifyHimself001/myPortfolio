@@ -1,0 +1,103 @@
+---
+import { Moon, Sun } from "lucide-react";
+import MobileNav from "@/components/islands/MobileNav";
+import { siteConfig } from "@/data/site";
+
+const pathname = Astro.url.pathname;
+
+const links = [
+  { label: "Work", href: "/work/" },
+  { label: "About", href: "/about/" },
+  { label: "Contact", href: "/contact/" },
+];
+
+function isActive(href: string): boolean {
+  if (href === "/work/") return pathname.startsWith("/work");
+  return pathname.startsWith(href);
+}
+---
+
+<header
+  class="sticky top-0 z-40 border-b border-line bg-neutral-950/85 backdrop-blur-md"
+>
+  <div class="shell flex h-16 items-center justify-between gap-6 lg:h-20">
+    <a
+      href="/"
+      class="group flex items-center gap-3"
+      aria-label={`${siteConfig.name} — home`}
+    >
+      <span
+        class="grid h-10 w-10 shrink-0 place-items-center rounded-sm bg-white text-[0.65rem] font-extrabold tracking-widest text-neutral-950 transition-colors group-hover:bg-accent group-hover:text-white lg:h-11 lg:w-11 lg:text-xs"
+      >
+        AEK
+      </span>
+      <span class="text-xs font-semibold tracking-tight text-white sm:text-sm lg:text-[0.95rem]">
+        {siteConfig.name}
+      </span>
+    </a>
+
+    <div class="flex items-center gap-4 lg:gap-6">
+      <nav class="hidden items-center gap-8 md:flex" aria-label="Primary">
+        {
+          links.map((link) => (
+            <a
+              href={link.href}
+              aria-current={isActive(link.href) ? "page" : undefined}
+              class:list={[
+                "link-underline text-sm font-medium transition-colors",
+                isActive(link.href)
+                  ? "text-white [aria-current]:text-white"
+                  : "text-neutral-400 hover:text-white",
+              ]}
+            >
+              {link.label}
+            </a>
+          ))
+        }
+        <a
+          href={siteConfig.cvUrl}
+          download
+          data-track="cv_download"
+          class="btn btn-primary !px-4 !py-2 text-xs"
+        >
+          CV
+        </a>
+      </nav>
+
+      <MobileNav client:load links={links} cvUrl={siteConfig.cvUrl} />
+
+      <button
+        type="button"
+        id="theme-toggle"
+        class="theme-toggle grid h-9 w-9 shrink-0 place-items-center rounded-sm border border-white/15 text-neutral-300 transition-colors hover:border-accent hover:text-accent"
+        aria-label="Toggle light and dark theme"
+        aria-pressed="false"
+        title="Toggle light / dark mode"
+      >
+        <Sun size={17} className="icon-sun" />
+        <Moon size={17} className="icon-moon" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById("theme-toggle");
+  const root = document.documentElement;
+
+  function syncToggleState() {
+    toggle?.setAttribute(
+      "aria-pressed",
+      String(root.classList.contains("light"))
+    );
+  }
+  syncToggleState();
+
+  toggle?.addEventListener("click", () => {
+    const isLight = root.classList.toggle("light");
+    try {
+      localStorage.setItem("theme", isLight ? "light" : "dark");
+    } catch {}
+    syncToggleState();
+  });
+</script>

@@ -1,0 +1,50 @@
+---
+import { ExternalLink, Github } from "lucide-react";
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"work">;
+}
+const { project } = Astro.props;
+const { liveUrl, repoUrl } = project.data;
+---
+
+<div class="flex flex-wrap gap-3 border-t border-line pt-6">
+  {
+    liveUrl ? (
+      <a
+        href={liveUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-primary"
+        data-track="project_live_click"
+        data-track-meta={JSON.stringify({ slug: project.id })}
+      >
+        <ExternalLink size={15} />
+        Visit Live Site
+      </a>
+    ) : null
+  }
+  {
+    repoUrl ? (
+      <a
+        href={repoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-outline"
+        data-track="project_github_click"
+        data-track-meta={JSON.stringify({ slug: project.id })}
+      >
+        <Github size={15} />
+        View Source
+      </a>
+    ) : null
+  }
+  {
+    !liveUrl && !repoUrl && (
+      <p class="text-sm text-neutral-500">
+        Concept / sample project — links available on request.
+      </p>
+    )
+  }
+</div>

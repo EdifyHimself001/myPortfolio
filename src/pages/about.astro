@@ -1,0 +1,143 @@
+---
+import { Image } from "astro:assets";
+import { Mail, FileDown } from "lucide-react";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import CategoryNavigation from "@/components/CategoryNavigation.astro";
+import { siteConfig } from "@/data/site";
+import {
+  skillGroups,
+  toolsList,
+  aboutParagraphs,
+  experienceNote,
+} from "@/data/profile";
+import portrait from "@/assets/portrait.jpg";
+
+const personJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: siteConfig.name,
+  url: Astro.site?.href,
+  jobTitle: siteConfig.role,
+  description: siteConfig.shortBio,
+  email: `mailto:${siteConfig.email}`,
+  knowsAbout: skillGroups.flatMap((g) => g.items),
+};
+---
+
+<BaseLayout
+  title="About"
+  description={`${siteConfig.name} — ${siteConfig.role}. ${siteConfig.shortBio}`}
+  type="profile"
+>
+  <div class="shell pb-24 pt-16 lg:pb-32 lg:pt-24">
+    <header class="max-w-3xl">
+      <p class="eyebrow">About</p>
+      <h1 class="display-hero mt-4" style="font-size: clamp(2.75rem, 8vw, 6rem);">
+        The person behind the work
+      </h1>
+    </header>
+
+    <div class="mt-16 grid gap-14 lg:grid-cols-12">
+      <div class="lg:col-span-5">
+        <div class="overflow-hidden bg-panel ring-1 ring-white/5">
+          <Image
+            src={portrait}
+            alt={`Portrait of ${siteConfig.name}`}
+            widths={[480, 720, 960]}
+            sizes="(min-width:1024px) 40vw, calc(100vw - 2.5rem)"
+            loading="eager"
+            fetchpriority="high"
+            class="w-full object-cover"
+          />
+        </div>
+        <dl class="mt-8 space-y-4 border-t border-line pt-6 text-sm">
+          <div class="flex justify-between gap-4">
+            <dt class="text-neutral-500">Location</dt>
+            <dd class="text-neutral-200">{siteConfig.location}</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-neutral-500">Studio</dt>
+            <dd class="text-neutral-200">{siteConfig.studio.name}</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-neutral-500">Availability</dt>
+            <dd class="text-accent">{siteConfig.availability}</dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-neutral-500">Email</dt>
+            <dd>
+              <a href={`mailto:${siteConfig.email}`} class="link-underline text-neutral-200">
+                {siteConfig.email}
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="lg:col-span-7 lg:pl-6">
+        <div class="space-y-6 text-lg leading-relaxed text-neutral-300">
+          {
+            aboutParagraphs.map((paragraph) => (
+              <p>{paragraph}</p>
+            ))
+          }
+        </div>
+
+        <section class="mt-16" aria-labelledby="skills-heading">
+          <h2 id="skills-heading" class="eyebrow">Skills</h2>
+          <div class="mt-6 grid gap-8 sm:grid-cols-2">
+            {
+              skillGroups.map((group) => (
+                <div class="border-t border-line pt-5">
+                  <h3 class="text-base font-bold text-white">{group.title}</h3>
+                  <ul class="mt-4 flex flex-wrap gap-2">
+                    {group.items.map((item) => (
+                      <li class="chip">{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
+        </section>
+
+        <section class="mt-14" aria-labelledby="tools-heading">
+          <h2 id="tools-heading" class="eyebrow">Tools I reach for</h2>
+          <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-400">
+            {
+              toolsList.map((tool) => (
+                <li class="flex items-center gap-2">
+                  <span class="h-1 w-1 rounded-full bg-accent" aria-hidden="true" />
+                  {tool}
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section class="mt-14" aria-labelledby="experience-heading">
+          <h2 id="experience-heading" class="eyebrow">Experience</h2>
+          <p class="mt-5 max-w-xl border border-dashed border-white/15 p-6 text-sm leading-relaxed text-neutral-500">
+            {experienceNote}
+          </p>
+        </section>
+
+        <div class="mt-14 flex flex-wrap gap-4">
+          <a href={siteConfig.cvUrl} download data-track="cv_download" class="btn btn-primary">
+            <FileDown size={15} />
+            Download CV
+          </a>
+          <a href="/contact/" class="btn btn-outline">
+            <Mail size={15} />
+            Contact Me
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <CategoryNavigation />
+
+  <JsonLd data={personJsonLd} />
+</BaseLayout>

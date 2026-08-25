@@ -1,0 +1,108 @@
+---
+import "../styles/global.css";
+import "@fontsource-variable/manrope";
+import SEO from "@/components/SEO.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import { siteConfig } from "@/data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article" | "profile";
+  noindex?: boolean;
+}
+
+const { title, description, image, type, noindex } = Astro.props;
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: title ? `${title} — ${siteConfig.name}` : siteConfig.name,
+  url: Astro.site?.href,
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var light = stored
+            ? stored === "light"
+            : window.matchMedia("(prefers-color-scheme: light)").matches;
+          if (light) document.documentElement.classList.add("light");
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SEO {title} {description} {image} {type} {noindex} />
+    {
+      import.meta.env.PROD && import.meta.env.PUBLIC_ANALYTICS !== "false" && (
+        <script is:inline defer src="/_vercel/insights/script.js" />
+      )
+    }
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="sr-only z-[60] rounded-sm bg-accent px-4 py-2 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+    >
+      Skip to content
+    </a>
+
+    <Header />
+
+    <main id="main" class="flex-1">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <JsonLd data={organizationJsonLd} />
+
+    <script>
+      import { trackClickFromElement, trackEvent } from "@/lib/analytics";
+
+      document.addEventListener("click", (event) => {
+        const target = event.target as HTMLElement | null;
+        const el = target?.closest<HTMLElement>("[data-track]");
+        if (el) trackClickFromElement(el);
+      });
+
+      const reduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      const revealEls = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-reveal]")
+      );
+
+      if (reduced || !("IntersectionObserver" in window)) {
+        revealEls.forEach((el) => el.classList.add("is-revealed"));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-revealed");
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+        );
+        revealEls.forEach((el) => observer.observe(el));
+      }
+
+      window.addEventListener("load", () => {
+        trackEvent("page_view");
+      });
+    </script>
+  </body>
+</html>

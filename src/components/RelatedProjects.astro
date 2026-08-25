@@ -1,0 +1,101 @@
+---
+import { ArrowLeft, ArrowRight, ArrowUpRight, Mail } from "lucide-react";
+import ProjectCard from "@/components/ProjectCard.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import type { CollectionEntry } from "astro:content";
+import { disciplineFor, neighborsInCategory } from "@/lib/projects";
+
+interface Props {
+  entry: CollectionEntry<"work">;
+  related: CollectionEntry<"work">[];
+  prev: CollectionEntry<"work"> | null;
+  next: CollectionEntry<"work"> | null;
+}
+
+const { entry, related, prev, next } = Astro.props;
+void neighborsInCategory;
+void disciplineFor;
+---
+
+{
+  related.length > 0 && (
+    <section class="shell mt-24 lg:mt-32" aria-labelledby="related-heading">
+      <SectionHeading
+        eyebrow="Continue browsing"
+        title="Related Work"
+        href="/work/"
+        linkLabel="All projects"
+      />
+      <div class="grid gap-x-8 gap-y-14 sm:grid-cols-3">
+        {related.map((rel) => (
+          <ProjectCard project={rel} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+<nav
+  class="shell mt-24 grid gap-8 border-t border-line pt-10 sm:grid-cols-2"
+  aria-label="More projects"
+>
+  {
+    prev ? (
+      <a
+        href={`/work/${prev.id}/`}
+        class="group flex flex-col gap-1 text-left"
+      >
+        <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+          <ArrowLeft
+            size={14}
+            className="transition-transform group-hover:-translate-x-1"
+          />
+          Previous
+        </span>
+        <span class="text-lg font-semibold text-neutral-200 transition-colors group-hover:text-accent">
+          {prev.data.title}
+        </span>
+      </a>
+    ) : (
+      <span />
+    )
+  }
+  {
+    next && (
+      <a
+        href={`/work/${next.id}/`}
+        class="group flex flex-col items-end gap-1 text-right"
+      >
+        <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+          Next
+          <ArrowRight
+            size={14}
+            className="transition-transform group-hover:translate-x-1"
+          />
+        </span>
+        <span class="text-lg font-semibold text-neutral-200 transition-colors group-hover:text-accent">
+          {next.data.title}
+        </span>
+      </a>
+    )
+  }
+</nav>
+
+<section class="shell mt-24 lg:mt-32">
+  <div class="border border-line bg-panel px-8 py-16 text-center">
+    <p class="eyebrow">Get in touch</p>
+    <h2 class="display-lg mx-auto mt-4 max-w-2xl">
+      Have a project in mind? Let's talk.
+    </h2>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <a href="/contact/" class="btn btn-primary">
+        Start a Conversation
+        <Mail size={15} />
+      </a>
+      <a href="/work/" class="btn btn-outline">
+        Browse All Work
+        <ArrowUpRight size={15} />
+      </a>
+    </div>
+  </div>
+</section>

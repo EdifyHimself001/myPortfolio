@@ -1,0 +1,24 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout noindex>
+  <div
+    class="shell flex min-h-[70vh] flex-col items-center justify-center py-24 text-center"
+  >
+    <p class="eyebrow">Error 404</p>
+    <h1
+      class="display-hero mt-6"
+      style="font-size: clamp(5rem, 18vw, 12rem);"
+    >
+      404
+    </h1>
+    <p class="mt-6 max-w-md text-neutral-400">
+      The page you are looking for doesn't exist or may have moved.
+    </p>
+    <div class="mt-10 flex flex-wrap justify-center gap-4">
+      <a href="/" class="btn btn-primary">Back to Home</a>
+      <a href="/work/" class="btn btn-outline">Explore Work</a>
+    </div>
+  </div>
+</BaseLayout>

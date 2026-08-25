@@ -1,0 +1,37 @@
+---
+import { ArrowUpRight } from "lucide-react";
+import { disciplines } from "@/lib/projects";
+import SectionHeading from "@/components/SectionHeading.astro";
+---
+
+<section class="shell mt-24 lg:mt-32" aria-labelledby="disciplines-heading">
+  <SectionHeading eyebrow="What I do" title="Four Disciplines, One Practice" />
+
+  <ul class="border-y border-line">
+    {
+      disciplines.map((d) => (
+        <li>
+          <a
+            href={d.href}
+            class="group grid grid-cols-[auto_1fr_auto] items-center gap-6 border-b border-line py-8 transition-colors last:border-b-0 hover:bg-white/[0.02] lg:gap-12 lg:py-10"
+            data-reveal
+          >
+            <span class="eyebrow w-10 shrink-0">{d.number}</span>
+            <span>
+              <span class="block text-3xl font-extrabold tracking-tight text-neutral-600 transition-colors duration-300 group-hover:text-accent sm:text-4xl lg:text-5xl">
+                {d.word}
+              </span>
+              <span class="mt-2 block max-w-xl text-sm leading-relaxed text-neutral-500">
+                {d.label} — {d.blurb}
+              </span>
+            </span>
+            <ArrowUpRight
+              size={28}
+              className="shrink-0 text-neutral-700 transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-accent"
+            />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>

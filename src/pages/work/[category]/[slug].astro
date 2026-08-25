@@ -1,0 +1,120 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import JsonLd from "@/components/JsonLd.astro";
+import ProjectLayout from "@/layouts/ProjectLayout.astro";
+import VideoEmbed from "@/components/VideoEmbed.astro";
+import { render } from "astro:content";
+import {
+  getWork,
+  getByCategory,
+  getRelated,
+  neighborsInCategory,
+} from "@/lib/projects";
+import { siteConfig } from "@/data/site";
+
+export async function getStaticPaths() {
+  const entries = await getWork();
+  return entries.map((entry) => ({
+    params: { category: entry.data.category, slug: entry.id.split("/")[1] ?? entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+if (!entry) {
+  return new Response(null, { status: 404 });
+}
+void getByCategory;
+
+const related = await getRelated(entry);
+const categoryEntries = await getByCategory(entry.data.category);
+const { prev, next } = neighborsInCategory(entry, categoryEntries);
+
+const { Content } = await render(entry);
+const d = entry.data;
+
+const creativeJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: d.title,
+  headline: d.title,
+  description: d.description,
+  dateCreated: String(d.year),
+  genre: entry.data.category,
+  keywords: d.tags.join(", "),
+  url: new URL(Astro.url.pathname, Astro.site).href,
+  creator: {
+    "@type": "Person",
+    name: siteConfig.name,
+  },
+};
+---
+
+<BaseLayout
+  title={d.title}
+  description={d.description}
+  image={d.coverImage.src}
+  type="article"
+>
+  <JsonLd data={creativeJsonLd} />
+
+  <ProjectLayout {entry} {related} {prev} {next}>
+    <div slot="media">
+      {
+        d.videoUrl && (
+          <div class="mb-4" data-title={d.title}>
+            <VideoEmbed
+              videoUrl={d.videoUrl}
+              posterSrc={d.coverImage.src}
+              title={d.title}
+            />
+            <p class="mt-3 text-xs text-neutral-600">
+              Sample video placeholder — replace with your own film.
+            </p>
+          </div>
+        )
+      }
+
+      {
+        d.gallery && d.gallery.length > 0 && (
+          <section aria-label={`Gallery for ${d.title}`} class="space-y-5">
+            {d.category === "photography" ? (
+              <div class="masonry-grid -mt-2">
+                {d.gallery.map((img, i) => (
+                  <figure class="masonry-item overflow-hidden bg-panel ring-1 ring-white/5">
+                    <Image
+                      src={img}
+                      alt={`${d.altText ?? d.title} — photo ${i + 1}`}
+                      widths={[480, 720, 1080]}
+                      sizes="(min-width:1024px) 66vw, calc(100vw - 2.5rem)"
+                      loading="lazy"
+                      decoding="async"
+                      class="h-auto w-full object-cover"
+                    />
+                  </figure>
+                ))}
+              </div>
+            ) : (
+              d.gallery.map((img, i) => (
+                <figure class="overflow-hidden bg-panel ring-1 ring-white/5">
+                  <Image
+                    src={img}
+                    alt={`${d.altText ?? d.title} — image ${i + 1}`}
+                    widths={[720, 1080, 1440]}
+                    sizes="(min-width:1024px) 66vw, calc(100vw - 2.5rem)"
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full object-cover"
+                  />
+                </figure>
+              ))
+            )}
+          </section>
+        )
+      }
+    </div>
+
+    <Content />
+  </ProjectLayout>
+</BaseLayout>

@@ -1,0 +1,105 @@
+---
+import { ArrowUpRight } from "lucide-react";
+import { disciplines } from "@/lib/projects";
+import { siteConfig } from "@/data/site";
+
+const year = new Date().getFullYear();
+const socialEntries = Object.entries(siteConfig.social).filter(
+  ([, url]) => url !== ""
+);
+---
+
+<footer class="border-t border-line bg-neutral-950">
+  <div class="shell py-16 lg:py-20">
+    <p
+      class="display-lg max-w-4xl"
+      style="font-size: clamp(2rem, 5.5vw, 4.5rem);"
+    >
+      {siteConfig.tagline.split(" ").map((word, i) => (
+        <span
+          class:list={[
+            i === 0 || i === 4 ? "text-white" : "text-neutral-700",
+          ]}
+        >
+          {word}{i < 3 ? " " : ""}
+        </span>
+      ))}
+    </p>
+
+    <div class="mt-14 grid gap-12 md:grid-cols-12">
+      <div class="md:col-span-5">
+        <p class="text-sm leading-relaxed text-neutral-400 max-w-sm">
+          {siteConfig.shortBio}
+        </p>
+        <p class="mt-4 text-sm text-neutral-500">{siteConfig.location}</p>
+        <a
+          href={`mailto:${siteConfig.email}`}
+          class="link-underline mt-2 inline-block text-sm font-medium text-accent"
+        >
+          {siteConfig.email}
+        </a>
+        <p class="mt-6 text-xs uppercase tracking-[0.2em] text-neutral-500">
+          {siteConfig.studio.name} — photo · design · film
+        </p>
+      </div>
+
+      <nav class="md:col-span-3" aria-label="Disciplines">
+        <h2 class="eyebrow">Disciplines</h2>
+        <ul class="mt-5 space-y-3">
+          {
+            disciplines.map((d) => (
+              <li>
+                <a
+                  href={d.href}
+                  class="text-sm text-neutral-300 transition-colors hover:text-white"
+                >
+                  {d.word} <span class="text-neutral-600">/</span>{" "}
+                  {d.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="md:col-span-4">
+        <h2 class="eyebrow">Connect</h2>
+        <ul class="mt-5 flex flex-wrap gap-x-6 gap-y-3">
+          {
+            socialEntries.length > 0
+              ? socialEntries.map(([name, url]) => (
+                  <li>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1 text-sm capitalize text-neutral-300 transition-colors hover:text-white"
+                    >
+                      {name}
+                      <ArrowUpRight size={13} />
+                    </a>
+                  </li>
+                ))
+              : (
+                  <li class="text-sm text-neutral-600">
+                    Add your social links in src/data/site.ts
+                  </li>
+                )
+          }
+        </ul>
+        <a href="/cv/" class="btn btn-outline mt-8">
+          Download CV
+        </a>
+      </div>
+    </div>
+
+    <div
+      class="mt-16 flex flex-col gap-3 border-t border-line pt-8 text-xs text-neutral-600 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>
+        © {year} {siteConfig.name} · {siteConfig.studio.name}
+      </p>
+      <p>Project content shown is sample work unless stated otherwise.</p>
+    </div>
+  </div>
+</footer>

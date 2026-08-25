@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"work">;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+
+const rows: Array<[string, string | string[]]> = [];
+if (data.client) rows.push(["Client", data.client]);
+rows.push(["Year", String(data.year)]);
+if (data.role) rows.push(["Role", data.role]);
+if (data.location) rows.push(["Location", data.location]);
+if (data.technologies && data.technologies.length > 0)
+  rows.push(["Technologies", data.technologies]);
+if (data.tools && data.tools.length > 0) rows.push(["Tools", data.tools]);
+
+function renderValue(value: string | string[]) {
+  if (typeof value === "string") return value;
+  return value.join(", ");
+}
+---
+
+{
+  rows.length > 0 && (
+    <dl class="space-y-5 border-t border-line pt-6">
+      {rows.map(([label, value]) => (
+        <div class="grid grid-cols-[7rem_1fr] gap-4">
+          <dt class="text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
+            {label}
+          </dt>
+          <dd class="text-sm leading-relaxed text-neutral-200">
+            {renderValue(value)}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}

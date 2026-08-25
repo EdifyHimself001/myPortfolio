@@ -1,0 +1,106 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Lightbox from "@/components/islands/Lightbox";
+import ProjectCard from "@/components/ProjectCard.astro";
+import type { PhotoItem } from "@/components/islands/Lightbox";
+import { getByCategory, disciplines, disciplineFor } from "@/lib/projects";
+import { isCategoryKey } from "@/lib/utils";
+import { siteConfig } from "@/data/site";
+
+export async function getStaticPaths() {
+  return disciplines.map((d) => ({
+    params: { category: d.key },
+    props: { category: d.key },
+  }));
+}
+
+const { category: categoryKey } = Astro.props as { category: string };
+if (!isCategoryKey(categoryKey)) {
+  throw new Error(`Unknown work category: ${categoryKey}`);
+}
+
+const d = disciplineFor(categoryKey);
+const entries = await getByCategory(categoryKey);
+
+const photos: PhotoItem[] = entries.flatMap((entry) => {
+  const images = [entry.data.coverImage, ...(entry.data.gallery ?? [])];
+  return images.map((img) => ({
+    src: img.src,
+    width: img.width,
+    height: img.height,
+    alt: entry.data.altText ?? entry.data.title,
+    caption: `${entry.data.title}${entry.data.location ? ` — ${entry.data.location}` : ""}`,
+    projectTitle: entry.data.title,
+    projectHref: `/work/${entry.id}/`,
+  }) satisfies PhotoItem);
+});
+---
+
+<BaseLayout
+  title={`${d.label} — ${d.word}`}
+  description={d.blurb}
+  image={entries[0]?.data.coverImage.src}
+>
+  <div class="shell pb-24 pt-16 lg:pb-32 lg:pt-24">
+    <header class="max-w-3xl">
+      <p class="eyebrow">{d.number} — Discipline</p>
+      <h1
+        class="display-hero mt-4"
+        style="font-size: clamp(2.75rem, 8vw, 6.5rem);"
+      >
+        {d.word}<span class="text-neutral-700">.</span>
+      </h1>
+      <p class="mt-6 flex items-baseline gap-3 text-xl font-semibold text-neutral-300">
+        {d.label}
+        <span class="text-sm font-normal text-neutral-600">
+          {entries.length}
+          {entries.length === 1 ? "project" : "projects"}
+        </span>
+      </p>
+      <p class="mt-5 max-w-2xl leading-relaxed text-neutral-400">{d.blurb}</p>
+      {
+        categoryKey !== "webapps" && (
+          <p class="mt-4 inline-flex items-center gap-2 rounded-full border border-line px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
+            {siteConfig.studio.name} · presented work
+          </p>
+        )
+      }
+    </header>
+
+    {
+      categoryKey === "photography" && (
+        <div class="mt-14">
+          <Lightbox photos={photos} client:visible />
+        </div>
+      )
+    }
+
+    {
+      (categoryKey === "webapps" || categoryKey === "graphics") && (
+        <div class="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:gap-x-12">
+          {entries.map((entry) => (
+            <ProjectCard
+              project={entry}
+              sizes="(min-width:1024px) 50vw, calc(100vw - 2.5rem)"
+            />
+          ))}
+        </div>
+      )
+    }
+
+    {
+      categoryKey === "videography" && (
+        <div class="mt-14 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:gap-x-12">
+          {entries.map((entry) => (
+            <ProjectCard
+              project={entry}
+              play
+              aspect="aspect-video"
+              sizes="(min-width:1024px) 50vw, calc(100vw - 2.5rem)"
+            />
+          ))}
+        </div>
+      )
+    }
+  </div>
+</BaseLayout>

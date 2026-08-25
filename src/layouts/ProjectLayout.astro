@@ -1,0 +1,89 @@
+---
+import { Image } from "astro:assets";
+import { ChevronRight } from "lucide-react";
+import type { CollectionEntry } from "astro:content";
+import ProjectMeta from "@/components/ProjectMeta.astro";
+import ProjectLinks from "@/components/ProjectLinks.astro";
+import RelatedProjects from "@/components/RelatedProjects.astro";
+import { disciplineFor } from "@/lib/projects";
+
+interface Props {
+  entry: CollectionEntry<"work">;
+  related: CollectionEntry<"work">[];
+  prev: CollectionEntry<"work"> | null;
+  next: CollectionEntry<"work"> | null;
+}
+
+const { entry, related, prev, next } = Astro.props;
+const d = disciplineFor(entry.data.category);
+const skipHero = entry.data.category === "videography" && !!entry.data.videoUrl;
+---
+
+<article>
+  <div class="shell pt-12 lg:pt-16">
+    <nav aria-label="Breadcrumb">
+      <ol class="flex flex-wrap items-center gap-1.5 text-xs text-neutral-500">
+        <li>
+          <a href="/work/" class="transition-colors hover:text-neutral-300"
+            >Work</a
+          >
+        </li>
+        <li aria-hidden="true"><ChevronRight size={12} /></li>
+        <li>
+          <a href={d.href} class="transition-colors hover:text-neutral-300"
+            >{d.label}</a
+          >
+        </li>
+        <li aria-hidden="true"><ChevronRight size={12} /></li>
+        <li aria-current="page" class="text-neutral-300">
+          {entry.data.title}
+        </li>
+      </ol>
+    </nav>
+
+    <header class="mt-10 max-w-4xl">
+      <p class="eyebrow">
+        {d.number} — {d.word} · {entry.data.year}
+      </p>
+      <h1 class="display-lg mt-4">{entry.data.title}</h1>
+      <p class="mt-6 text-lg leading-relaxed text-neutral-400">
+        {entry.data.description}
+      </p>
+    </header>
+  </div>
+
+  {
+    !skipHero && (
+      <div class="shell mt-10 lg:mt-14">
+        <div class="overflow-hidden bg-panel ring-1 ring-white/5">
+          <Image
+            src={entry.data.coverImage}
+            alt={entry.data.altText ?? entry.data.title}
+            widths={[960, 1440, 1920]}
+            sizes="(min-width:1280px) 1280px, calc(100vw - 2.5rem)"
+            loading="eager"
+            decoding="async"
+            class="w-full object-cover"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    )
+  }
+
+  <div class="shell mt-12 grid gap-12 lg:mt-16 lg:grid-cols-12">
+    <aside class="space-y-8 self-start lg:sticky lg:top-28 lg:col-span-4">
+      <ProjectMeta project={entry} />
+      <ProjectLinks project={entry} />
+    </aside>
+
+    <div class="min-w-0 lg:col-span-8">
+      <slot name="media" />
+      <div class:list={["prose-work", { "mt-12": true }]}>
+        <slot />
+      </div>
+    </div>
+  </div>
+
+  <RelatedProjects {entry} {related} {prev} {next} />
+</article>

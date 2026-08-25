@@ -1,0 +1,40 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SearchFilter from "@/components/islands/SearchFilter";
+import ProjectGrid from "@/components/ProjectGrid.astro";
+import { getWork, toCardData, disciplines } from "@/lib/projects";
+
+const entries = await getWork();
+const items = entries.map(toCardData);
+---
+
+<BaseLayout
+  title="Work"
+  description="Explore selected projects across web applications, photography, graphic design and videography."
+>
+  <div class="shell pb-24 pt-16 lg:pb-32 lg:pt-24">
+    <header class="max-w-3xl">
+      <p class="eyebrow">The archive</p>
+      <h1 class="display-hero mt-4" style="font-size: clamp(3rem, 9vw, 7rem);">
+        Work
+      </h1>
+      <p class="mt-6 text-lg leading-relaxed text-neutral-400">
+        Every project from every discipline — searchable and filterable. Use
+        the categories to jump between Build, Capture, Design and Tell.
+      </p>
+    </header>
+
+    <div class="mt-14">
+      <SearchFilter client:load items={items} categories={disciplines.map((d) => ({ key: d.key, label: d.label }))} />
+      <noscript>
+        <div class="mt-4">
+          <p class="mb-8 text-sm text-neutral-500">
+            Enable JavaScript for search and filtering — all projects are
+            listed below.
+          </p>
+          <ProjectGrid entries={entries} />
+        </div>
+      </noscript>
+    </div>
+  </div>
+</BaseLayout>

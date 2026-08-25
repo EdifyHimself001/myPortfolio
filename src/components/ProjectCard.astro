@@ -1,0 +1,78 @@
+---
+import { Image } from "astro:assets";
+import { Play } from "lucide-react";
+import type { CollectionEntry } from "astro:content";
+import { disciplineFor } from "@/lib/projects";
+
+interface Props {
+  project: CollectionEntry<"work">;
+  aspect?: string;
+  eager?: boolean;
+  play?: boolean;
+  sizes?: string;
+  class?: string;
+}
+
+const {
+  project,
+  aspect = "aspect-[16/10]",
+  eager = false,
+  play = false,
+  sizes = "(min-width:1024px) 33vw, (min-width:640px) 50vw, calc(100vw - 2.5rem)",
+  class: className = "",
+} = Astro.props;
+
+const d = disciplineFor(project.data.category);
+const href = `/work/${project.id}/`;
+---
+
+<a href={href} class:list={["group block", className]}>
+  <div
+    class:list={[
+      "relative overflow-hidden bg-panel ring-1 ring-white/5",
+      aspect,
+    ]}
+  >
+    <Image
+      src={project.data.coverImage}
+      alt={project.data.altText ?? project.data.title}
+      widths={[480, 720, 1080, 1440]}
+      sizes={sizes}
+      loading={eager ? "eager" : "lazy"}
+      decoding="async"
+      class="h-full w-full object-cover transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.04]"
+    />
+    {
+      play && (
+        <span class="absolute inset-0 grid place-items-center">
+          <span class="play-badge grid h-16 w-16 place-items-center rounded-full backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
+            <Play size={22} className="translate-x-[1px]" />
+          </span>
+        </span>
+      )
+    }
+  </div>
+
+  <div class="mt-5">
+    <p class="eyebrow">
+      {d.word} · {d.label} — {project.data.year}
+    </p>
+    <h3
+      class="mt-2 text-lg font-semibold tracking-tight text-neutral-100 transition-colors group-hover:text-accent sm:text-xl"
+    >
+      {project.data.title}
+    </h3>
+    <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-neutral-400">
+      {project.data.description}
+    </p>
+    {
+      project.data.tags.length > 0 && (
+        <ul class="mt-3 flex flex-wrap gap-2" aria-label="Tags">
+          {project.data.tags.slice(0, 4).map((tag) => (
+            <li class="chip">{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</a>
